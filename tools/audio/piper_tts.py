@@ -83,6 +83,14 @@ class PiperTTS(BaseTool):
                 "type": "number",
                 "default": 0.3,
             },
+            "data_dir": {
+                "type": "string",
+                "description": (
+                    "Directory holding the .onnx voice models. Defaults to ~/.piper/models "
+                    "(where install_instructions tell users to download voices). Piper itself "
+                    "defaults to the current directory, which is almost never where voices live."
+                ),
+            },
             "output_path": {"type": "string"},
         },
     }
@@ -120,6 +128,11 @@ class PiperTTS(BaseTool):
         output_path = Path(inputs.get("output_path", "tts_output.wav"))
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
+        # Piper's --data-dir defaults to the current directory, so a voice downloaded
+        # per install_instructions (~/.piper/models) is invisible unless we point at it.
+        data_dir = inputs.get("data_dir") or Path.home() / ".piper" / "models"
+        data_dir_args = ["--data-dir", str(data_dir)] if Path(data_dir).is_dir() else []
+
         proc = subprocess.run(
             [
                 "piper",
@@ -127,6 +140,7 @@ class PiperTTS(BaseTool):
                 "--speaker", str(inputs.get("speaker_id", 0)),
                 "--length-scale", str(inputs.get("length_scale", 1.0)),
                 "--sentence-silence", str(inputs.get("sentence_silence", 0.3)),
+                *data_dir_args,
                 "--output_file", str(output_path),
             ],
             input=inputs["text"],

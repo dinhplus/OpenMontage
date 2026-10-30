@@ -26,7 +26,15 @@ pipeline/
 tests/qa/output/
 
 # Project workspaces (generated assets, renders — all regenerable)
-projects/
+# NOTE: excludes the CONTENTS, not the directory itself. `projects/` would stop
+# git descending at all, and a negation inside an excluded directory never fires.
+projects/*
+
+# ...except hand-written series tooling, which is NOT regenerable: stage runner,
+# caption aligner, QA contact sheets, shared design system, playbook, curriculum.
+# Episode outputs under projects/sd-ep*/ stay ignored — those are the regenerable
+# part the rule above is about.
+!projects/_sd-series/
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
 # regenerable from source APIs via corpus_builder). Explicit rule even

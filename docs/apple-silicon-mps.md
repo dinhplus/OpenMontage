@@ -39,6 +39,35 @@ available device:
 Device selection is automatic. All local GPU tools (`upscale`, `face_restore`,
 `ltx_video_local`, `wan_video_local`, etc.) route through this helper.
 
+## Not Everything Goes Through PyTorch
+
+`get_torch_device()` only helps tools built on **PyTorch**. Several production tools use
+other runtimes, and each has a different Metal story. Getting this wrong looks like
+"the GPU isn't being used" when in fact the framework has no Metal backend at all.
+
+| runtime | used by | Metal support |
+|---|---|---|
+| PyTorch | `upscale`, `face_restore`, local video gen | **yes** — via `get_torch_device()` |
+| CTranslate2 | `faster-whisper` | **no** — CPU and CUDA only |
+| MLX | `mlx-whisper` | **yes** — Metal native |
+| Chromium | Remotion renders | via `--gl` flag, not PyTorch |
+| FFmpeg | encode/master | via VideoToolbox, not PyTorch |
+
+Measured on an M3 Max, transcribing 275.8s of audio with the `medium` model:
+
+- `faster-whisper` (CTranslate2, int8, CPU) — **143.1s**, 1.93× realtime
+- `mlx-whisper` (MLX, Metal) — **19.1s**, 14.43× realtime
+
+**7.5× faster**, and the caption timings that come out differ by a median of 0 ms after
+the alignment step. On Apple Silicon there is no CUDA device, so `device="cpu"` in
+faster-whisper is not a careless choice — it is the only option that runtime offers.
+Getting the GPU requires switching runtimes, not switching flags.
+
+For Remotion, `--gl=angle-egl` measured 16% faster than the default with SSIM exactly
+1.000000 (pixel-identical). VideoToolbox hardware encoding was the same speed but
+produced 2.5× larger files — rejected. See `skills/meta/gpu-acceleration.md` for the
+benchmark method: **always measure wall time and output fidelity together.**
+
 ## Known Limitations
 
 - **VRAM**: Apple Silicon uses unified memory. Models that require >16 GB VRAM

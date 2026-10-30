@@ -67,6 +67,29 @@ When the user asks to make, create, produce, or generate any video content — a
 
 The intelligence is in the skills, not in improvised code. An agent that reads the director skills and Layer 3 knowledge will produce significantly better output than one that calls tools directly with generic prompts.
 
+### Batch Work — Series, Seasons, Multi-Deliverable Runs
+
+If the request is for **more than one deliverable of the same shape** — a series, a
+season, a set of localized variants, a batch migration — read these THREE meta-skills
+before starting, in this order. They are not optional refinements; each encodes a
+failure that has already cost real work.
+
+1. **`skills/meta/context-economics.md`** — a multi-deliverable run will fill the
+   context window and hang unless the *mechanics around content* are extracted into
+   commands first. Measure the transcript before optimising; the obvious culprit is
+   usually wrong.
+2. **`skills/meta/multi-agent-production.md`** — what parallelises and what must stay
+   serial, shared-resource hazards (build caches, session-wide quotas), and the
+   report-back channel that keeps an agent's findings from dying in its own artifact.
+   Includes the pattern that caught five fabricated numbers.
+3. **`skills/meta/gpu-acceleration.md`** — before adopting any faster path, benchmark
+   wall time **and output fidelity together**. Contains measured results for Remotion
+   `--gl` and Metal Whisper on Apple Silicon.
+
+For a series specifically, build the shared design system, the per-stage brief files,
+and the stage-runner commands **before** producing episode two — not after episode six,
+when the window is already full.
+
 ## What OpenMontage Is
 
 OpenMontage is an instruction-driven video production system. The AI agent IS the intelligence — it reads instructions (pipeline manifests + stage director skills + meta skills) and drives the pipeline using tools.

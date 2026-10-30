@@ -4,15 +4,32 @@
   "title": "Decision Log",
   "description": "Audit trail of every meaningful choice made during production. Prevents hidden system behavior, enables reviewer inspection, and guards against context drift.",
   "type": "object",
-  "required": ["version", "project_id", "decisions"],
+  "required": [
+    "version",
+    "project_id",
+    "decisions"
+  ],
   "properties": {
-    "version": { "type": "string", "const": "1.0" },
-    "project_id": { "type": "string" },
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "project_id": {
+      "type": "string"
+    },
     "decisions": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["decision_id", "stage", "category", "subject", "options_considered", "selected", "reason"],
+        "required": [
+          "decision_id",
+          "stage",
+          "category",
+          "subject",
+          "options_considered",
+          "selected",
+          "reason"
+        ],
         "properties": {
           "decision_id": {
             "type": "string",
@@ -41,7 +58,9 @@
               "capability_extension",
               "playbook_override",
               "visual_accuracy_check",
-              "approval_policy"
+              "approval_policy",
+              "measurement_method",
+              "claim_verification"
             ],
             "description": "What class of decision this is"
           },
@@ -53,18 +72,34 @@
             "type": "array",
             "items": {
               "type": "object",
-              "required": ["option_id", "label", "score", "reason"],
+              "required": [
+                "option_id",
+                "label",
+                "score",
+                "reason"
+              ],
               "properties": {
-                "option_id": { "type": "string" },
-                "label": { "type": "string", "description": "Human-readable name" },
+                "option_id": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Human-readable name"
+                },
                 "score": {
                   "type": "number",
                   "minimum": 0,
                   "maximum": 1,
                   "description": "Normalized score 0-1 (1 is best)"
                 },
-                "reason": { "type": "string", "description": "Why this option scored this way" },
-                "rejected_because": { "type": "string", "description": "If rejected, why" }
+                "reason": {
+                  "type": "string",
+                  "description": "Why this option scored this way"
+                },
+                "rejected_because": {
+                  "type": "string",
+                  "description": "If rejected, why"
+                }
               },
               "additionalProperties": false
             },

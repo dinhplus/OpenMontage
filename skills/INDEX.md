@@ -92,6 +92,7 @@ Key capability families to look for in the output:
 | Azure TTS | (tool: `azure_tts`) | Optional cloud neural narration (SSML prosody, express-as styles) — same Speech key as `azure_stt` | `azure-text-to-speech` |
 | Subtitle Sync | `core/subtitle-sync.md` | Subtitle timing and alignment | `remotion-best-practices` |
 | Color Grading | `core/color-grading.md` | FFmpeg color profiles, LUT workflow, accessibility | `ffmpeg` |
+| TikTok Scheduled Publishing | `core/tiktok-scheduled-publishing.md` | Putting a finished series on TikTok's own scheduler on a fixed daily rhythm; the 10-day horizon and its top-up loop | `playwright-recording` |
 
 ## Creative Skills
 
@@ -293,6 +294,10 @@ Cross-cutting skills that apply to all pipelines:
 | Animation Runtime Selector | `meta/animation-runtime-selector.md` | Choose render runtime + animation library per scene |
 | Taste Direction | `meta/taste-direction.md` | Convert a brief into taste dials, anti-patterns, and reference strategy for proposal/playbook/atelier work |
 | Bespoke Composition (Atelier) | `meta/bespoke-composition.md` | Hand-author a composition from scratch (hero work) — no stock scene-types; routes art-direction → motion principles → engine mechanics → atelier render |
+| Series Production | `meta/series-production.md` | Produce a multi-episode series as ONE design system instantiated N times: shared-component drift (8 measured instances), aspect-ratio conversion, why QA boards can't be delegated, source-attribution failures, continuity that rots, and the render guards worth building |
+| Multi-Agent Production | `meta/multi-agent-production.md` | Run a series/batch across parallel subagents: what parallelises, shared-resource hazards, session-wide quotas, making agents doubt their own brief, and the report-back channel |
+| Context Economics | `meta/context-economics.md` | Keep a long multi-deliverable run inside one context window: measure the transcript before optimising, extract mechanics to commands, contact-sheet QA, stop at clean boundaries |
+| GPU Acceleration (Apple Silicon) | `meta/gpu-acceleration.md` | Decide whether a GPU path is worth adopting: benchmark wall time AND output fidelity together; measured Remotion `--gl` and MLX Whisper results |
 
 ## Style Playbooks
 

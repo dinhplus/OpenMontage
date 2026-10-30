@@ -89,7 +89,11 @@ class PixabayMusic(BaseTool):
                 "type": "number",
                 "default": 120,
                 "maximum": 600,
-                "description": "Maximum duration in seconds",
+                "description": (
+                    "Maximum duration in seconds. When omitted the ceiling "
+                    "widens to fit min_duration, so requesting a long bed does "
+                    "not collide with this default and yield an empty window."
+                ),
             },
             "output_path": {
                 "type": "string",
@@ -153,19 +157,41 @@ class PixabayMusic(BaseTool):
 
             # Step 2: Filter by duration
             min_dur = inputs.get("min_duration", 30)
-            max_dur = inputs.get("max_duration", 120)
-            filtered = [
+            # An explicit min_duration must not be defeated by the *default* max.
+            # Asking for min_duration=300 without naming a max used to produce the
+            # window 300 <= d <= 120 — empty, satisfiable by nothing — so every
+            # track failed, the fallback below fired, and the caller silently got
+            # an arbitrary short track. Only an explicit max may bound the top.
+            if "max_duration" in inputs:
+                max_dur = inputs["max_duration"]
+            else:
+                max_dur = max(120, min_dur * 4)
+
+            in_range = [
                 t for t in tracks
                 if t.get("duration") is not None
                 and min_dur <= t["duration"] <= max_dur
             ]
 
-            # Fall back to unfiltered if no matches within duration range
-            if not filtered:
-                filtered = tracks
+            # Fall back when nothing fits, but pick the track that misses by the
+            # least rather than whatever happened to sort first, and tell the
+            # caller the constraint was not met — a background bed that is
+            # shorter than the video has to be looped, and the caller is the only
+            # one who can decide that.
+            constraint_met = bool(in_range)
+            if in_range:
+                candidates = in_range
+            else:
+                def _miss(t: dict) -> float:
+                    d = t.get("duration")
+                    if d is None:
+                        return float("inf")
+                    return max(min_dur - d, d - max_dur, 0)
+
+                candidates = sorted(tracks, key=_miss)
 
             # Step 3: Pick the first matching track
-            track = filtered[0]
+            track = candidates[0]
 
             # Step 4: Download the audio
             output_path = self._download(track, inputs)
@@ -189,7 +215,11 @@ class PixabayMusic(BaseTool):
                 "format": "mp3",
                 "license": "Pixabay Content License (free, no attribution required)",
                 "results_found": len(tracks),
-                "results_after_filter": len(filtered),
+                "results_after_filter": len(candidates),
+                # False means no track satisfied the requested window and this is
+                # the closest miss — the bed will need looping or another query.
+                "duration_constraint_met": constraint_met,
+                "duration_requested": {"min": min_dur, "max": max_dur},
             },
             artifacts=[str(output_path)],
             cost_usd=0.0,

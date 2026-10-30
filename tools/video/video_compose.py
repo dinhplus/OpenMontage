@@ -1042,6 +1042,11 @@ class VideoCompose(BaseTool):
             cmd.append(f"--crf={bespoke['crf']}")
         if bespoke.get("concurrency"):
             cmd.append(f"--concurrency={bespoke['concurrency']}")
+        # Bộ rasterize của Chromium. Remotion mặc định để Chromium tự chọn; trên
+        # Apple Silicon 'angle-egl' đo được nhanh hơn ~16% với ảnh ra giống hệt
+        # từng điểm ảnh (SSIM 1.000000), nên đáng cho caller chỉ định.
+        if bespoke.get("gl"):
+            cmd.append(f"--gl={bespoke['gl']}")
 
         try:
             # Run from inside the composer dir so npx resolves the local
@@ -2897,12 +2902,30 @@ class VideoCompose(BaseTool):
                 bg = colors["background"]
                 resolved["back_color"] = bg
 
-        # Layer 2: edit_decisions subtitle style
+        # Layer 2: edit_decisions subtitle style.
+        # Per schemas/artifacts/edit_decisions.schema.json, `subtitles.style` is a
+        # STRING naming the display mode ("sentence" | "word-by-word" | "karaoke"),
+        # and the visual properties are flat siblings (font, font_size, color, ...).
+        # Older callers passed a style dict, so both shapes are accepted.
         if edit_decisions:
-            ed_style = edit_decisions.get("subtitles", {}).get("style", {})
-            for k, v in ed_style.items():
-                if v is not None:
-                    resolved[k] = v
+            subs = edit_decisions.get("subtitles") or {}
+            ed_style = subs.get("style")
+            if isinstance(ed_style, dict):
+                for k, v in ed_style.items():
+                    if v is not None:
+                        resolved[k] = v
+            else:
+                if ed_style:
+                    resolved["display_style"] = ed_style
+                for src, dst in (
+                    ("font", "font"),
+                    ("font_size", "font_size"),
+                    ("color", "primary_color"),
+                    ("outline_color", "outline_color"),
+                    ("background", "back_color"),
+                ):
+                    if subs.get(src) is not None:
+                        resolved[dst] = subs[src]
 
         # Layer 3: Explicit override (highest priority)
         if explicit_style:
