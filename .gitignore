@@ -34,7 +34,6 @@ projects/*
 # caption aligner, QA contact sheets, shared design system, playbook, curriculum.
 # Episode outputs under projects/sd-ep*/ stay ignored — those are the regenerable
 # part the rule above is about.
-!projects/_sd-series/
 
 # Corpus directories (downloaded stock clips, thumbnails, embeddings —
 # regenerable from source APIs via corpus_builder). Explicit rule even
